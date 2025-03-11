@@ -15,7 +15,7 @@ st.markdown(
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
     }
     h1 {
-        color: #000000;
+        color: black;
         text-align: center;
     }
     .stbutton {
