@@ -1,26 +1,43 @@
 import streamlit as st
 
-# Custom CSS for styling
+# Custom CSS for better styling and responsiveness
 st.markdown(
-    '''
+    """
     <style>
-    body {
-        background-color: #f0f2f6;
-        color: #000000;
-    }
+    /* Background & layout */
     .stApp {
-        background-color: #f0f2f6;
-        border-radius: 10px;
+        background-color: #f9f9f9;
         padding: 20px;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
     }
+    
+    /* Header - Change h1 to Black */
     h1 {
-        color: black;
+        color: black !important;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+    }
+
+    h2 {
+        color: #333;
         text-align: center;
     }
+    h3 {
+        color: black !important;
+        text-align: center;
+    }
+
+    /* Sidebar */
+    .sidebar .sidebar-content {
+        background-color: #00b09b;
+        color: white;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    /* Buttons */
     .stbutton {
         background-color: #00b09b;
-        color: #ffffff;
+        color: white;
         border-radius: 5px;
         padding: 10px;
         border: none;
@@ -28,63 +45,75 @@ st.markdown(
         font-size: 16px;
         font-weight: bold;
         text-transform: uppercase;
-        transition: background-color 0.3s ease;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        width: 100%;
     }
+
     .stbutton:hover {
         background-color: #96c93d;
         transform: scale(1.05);
     }
+
+    /* Result Box */
     .resultsbox {
         background-color: #00b09b;
-        color: #ffffff;
+        color: white;
         border-radius: 10px;
         padding: 20px;
         font-size: 18px;
         font-weight: bold;
         text-align: center;
         margin-top: 20px;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
+    
+/* Error Message Styling */
+    .error-message {
+        background-color: #ffcccc;  /* Light Red Background */
+        color: #b30000;  /* Dark Red Text */
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    /* Footer */
     .footer {
         text-align: center;
         margin-top: 20px;
-        color: #000000;
+        color: #333;
         font-weight: bold;
     }
     </style>
-    ''',
+    """,
     unsafe_allow_html=True
 )
 
 # Title
-st.markdown("<h1>Unit Converter using Python and Streamlit</h1>", unsafe_allow_html=True)
-st.write("Convert length, weight, and temperature units easily.")
+st.markdown("<h1>⚖️ Unit Converter</h1>", unsafe_allow_html=True)
+st.write("<h3>Easily convert Length, Weight, and Temperature units.</h3>", unsafe_allow_html=True)
 
 # Sidebar UI
 with st.sidebar:
-    st.markdown("<h2>Unit Converter</h2>", unsafe_allow_html=True)
+    st.markdown("<h2>⚙️ Choose Conversion</h2>", unsafe_allow_html=True)
     converter_type = st.selectbox("Converter Type", ["Length", "Weight", "Temperature"])
-    value_input = st.number_input("Enter value to convert", value=0.0, min_value=0.0, step=0.1)  # Ensure float type
+    value_input = st.number_input("Enter value to convert", value=0.0, min_value=0.0, step=0.1, format="%.2f")
 
     col1, col2 = st.columns(2)
 
     # Unit selection based on conversion type
     if converter_type == "Length":
-        with col1:
-            from_unit = st.selectbox("From Unit", ["Meter", "Kilometer", "Centimeter", "Millimeter", "Mile", "Yard", "Foot", "Inch"])
-        with col2:
-            to_unit = st.selectbox("To Unit", ["Meter", "Kilometer", "Centimeter", "Millimeter", "Mile", "Yard", "Foot", "Inch"])
+        units = ["Meter", "Kilometer", "Centimeter", "Millimeter", "Mile", "Yard", "Foot", "Inch"]
     elif converter_type == "Weight":
-        with col1:
-            from_unit = st.selectbox("From Unit", ["Kilogram", "Gram", "Milligram", "Pound", "Ounce"])
-        with col2:
-            to_unit = st.selectbox("To Unit", ["Kilogram", "Gram", "Milligram", "Pound", "Ounce"])
-    elif converter_type == "Temperature":
-        with col1:
-            from_unit = st.selectbox("From Unit", ["Celsius", "Fahrenheit", "Kelvin"])
-        with col2:
-            to_unit = st.selectbox("To Unit", ["Celsius", "Fahrenheit", "Kelvin"])
+        units = ["Kilogram", "Gram", "Milligram", "Pound", "Ounce"]
+    else:
+        units = ["Celsius", "Fahrenheit", "Kelvin"]
+
+    with col1:
+        from_unit = st.selectbox("From Unit", units)
+    with col2:
+        to_unit = st.selectbox("To Unit", units)
 
     convert_button = st.button("💠 Convert 💠")
 
@@ -116,19 +145,25 @@ def convert_temperature(from_unit, to_unit, value):
         return value - 273.15
     elif from_unit == "Kelvin" and to_unit == "Fahrenheit":
         return (value - 273.15) * 9/5 + 32
-    return value  # If same unit, return the original value
+    return value  # If same unit, return original value
 
 # Perform conversion when button is clicked
 if convert_button:
-    if converter_type == "Length":
-        result = convert_length(from_unit, to_unit, value_input)
-    elif converter_type == "Weight":
-        result = convert_weight(from_unit, to_unit, value_input)
-    elif converter_type == "Temperature":
-        result = convert_temperature(from_unit, to_unit, value_input)
+    if from_unit == to_unit:
+        st.markdown(
+            "<div class='error-message'>⚠️ Please select different units for conversion.</div>", 
+            unsafe_allow_html=True
+        )
+    else:
+        if converter_type == "Length":
+            result = convert_length(from_unit, to_unit, value_input)
+        elif converter_type == "Weight":
+            result = convert_weight(from_unit, to_unit, value_input)
+        elif converter_type == "Temperature":
+            result = convert_temperature(from_unit, to_unit, value_input)
 
-    # Display result
-    st.markdown(f"<div class='resultsbox'>{value_input} {from_unit} = {result:.4f} {to_unit}</div>", unsafe_allow_html=True)
+        # Display result in 00.00 format
+        st.markdown(f"<div class='resultsbox'>{value_input:.2f} {from_unit} = {result:.2f} {to_unit}</div>", unsafe_allow_html=True)
 
 # Footer
 st.markdown('<div class="footer">Developed by <a href="https://github.com/farhan-khaan">Farhan Khan</a></div>', unsafe_allow_html=True)
